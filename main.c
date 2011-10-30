@@ -26,7 +26,7 @@
 #include "thread.h"
 #include "copy.h"
 
-int clos = 0;
+volatile int clos = 0;
 unsigned long long int total = 0;
 time_t start = 0;
 
@@ -41,6 +41,10 @@ void alrm(int sig) {
 	double mbs = total/(1024.0 * 1024.0 * diff);
 	double written_mb = total / (1024.0 * 1024.0);
 	fprintf(stderr, "Written: %.2lf MB (%.2lf MB/s)\n", written_mb, mbs);
+}
+
+void hup(int sig) {
+	clos = 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -96,10 +100,13 @@ int main(int argc, char *argv[]) {
 	}
 
 	signal(SIGALRM, alrm);
+	signal(SIGHUP, hup);
+	signal(SIGTERM, hup);
+	signal(SIGINT, hup);
 	start = time(NULL);
 	alarm(2);
 
-	for(;;) {
+	while(clos != 1) {
 		int res = copy(p[0], 1, 4096);
 		if(res >= 0)
 			total += res;

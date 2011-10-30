@@ -1,5 +1,3 @@
-- Cancel threads if destination is full
+- Cancel threads properly if destination is full
 - Fix minor gcc warnings
 - Fix Makefile
-- Proper handling of SIGINTR and SIGTERM:
-	print statistics etc.
