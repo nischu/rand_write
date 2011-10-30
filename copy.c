@@ -48,6 +48,7 @@ int copy(int from_fd, int to_fd, int chunk_size)
 	static int fallback = 0;
 
 	/* The better approach: Zero-copy splice. */
+#ifdef SPLICE_F_MOVE
 	if(!fallback) {
 		int res = splice(from_fd, NULL, to_fd, NULL, chunk_size, 0);
 		/* Something went wrong. Fall back to dumb read/write. */
@@ -57,7 +58,7 @@ int copy(int from_fd, int to_fd, int chunk_size)
 		} else
 			return res;
 	}
-
+#endif
 	char buf[chunk_size];
 
 	int res = fallback_rw(from_fd, to_fd, buf, chunk_size);
