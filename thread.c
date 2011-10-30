@@ -32,6 +32,11 @@ void *run(void *data) {
 	struct thread_data t = *(struct thread_data*) data;
 
 	int rd = open(t.file, O_RDONLY);
+	if(rd < 0) {
+		perror("Could not open input file");
+		return NULL;
+	}
+
 	unsigned long long int *total = malloc(sizeof(unsigned long long int));
 	if(total == NULL)
 		return NULL;

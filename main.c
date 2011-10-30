@@ -45,16 +45,39 @@ void alrm(int sig) {
 
 int main(int argc, char *argv[]) {
 	pthread_t *threads;
-	int n;
+	int n = 4;
+	char file[1024] = "/dev/urandom";
+	int c;
 
-	if(argc != 3) {
-		fprintf(stderr, "Aufruf: %s <Eingabedatei> <Anzahl Threads>\n", argv[0]);
-		return -1;
+	while((c = getopt(argc, argv, "hf:n:")) != -1) {
+		switch(c) {
+			case 'f':
+				strncpy(file, optarg, 1024);
+				break;
+			case 'n':
+				n = atoi(optarg);
+				break;
+			case '?':
+			case 'h':
+				fprintf(stderr, "Parameters:\n\t"
+						"-n number_of_threads "
+						"(default: 4)\n\t-f file "
+						"(default: /dev/urandom)\n");
+				return 0;
+			default:
+				abort();
+		}
 	}
 
 	struct thread_data t;
-	t.file = argv[1];
-	n = atoi(argv[2]);
+	t.file = file;
+
+	if(n <= 0) {
+		fprintf(stderr, "Staring zero threads: Exiting!\n");
+		return -1;
+	}
+	fprintf(stderr, "Starting %i threads (use -n parameter to change)\n",
+			n);
 
 	/* Create n threads */
 	threads = malloc(n * sizeof(pthread_t));
