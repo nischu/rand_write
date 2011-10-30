@@ -64,7 +64,8 @@ int main(int argc, char *argv[]) {
 	int p[2];
 	pipe(p);
 	t.fd = p[1];
-	for(int i = 0; i < n; i++) {
+	int i;
+	for(i = 0; i < n; i++) {
 		rets[i] = pthread_create(&threads[i], NULL, run, (void*)&t);
 	}
 
@@ -89,7 +90,7 @@ int main(int argc, char *argv[]) {
 	read(p[0], buf, 16 * 4096);
 
 	/* Kill all threads */
-	for(int i = 0; i < n; i++) {
+	for(i = 0; i < n; i++) {
 		unsigned long long int *to;
 		pthread_join(threads[i], (void**)&to);
 		if(to != NULL) {

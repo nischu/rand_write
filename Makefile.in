@@ -1,0 +1,82 @@
+# Main Makefile for Mark Galassi’s stupid ‘‘marklib’’ library 
+# Copyright (C) 1996 Mark Galassi. 
+# This program is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2, or (at your option) 
+# any later version. 
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+# GNU General Public License for more details. 
+# You should have received a copy of the GNU General Public License 
+# along with this program; if not, write to the Free Software 
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. 
+SHELL = /bin/sh 
+top_srcdir = @top_srcdir@ 
+srcdir = @srcdir@ 
+VPATH = @srcdir@ 
+.SUFFIXES: 
+.SUFFIXES: .c .o 
+OPT=-g -O 
+AR = ar 
+AR_FLAGS = rc 
+RANLIB = @RANLIB@ 
+CC = @CC@ 
+CFLAGS = -I. @CFLAGS@ 
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ -pthread
+INSTALL = @INSTALL@ 
+prefix = @prefix@ 
+exec_prefix = @exec_prefix@ 
+bindir = $(exec_prefix)/bin 
+libdir = $(prefix)/lib 
+infodir = $(prefix)/info
+
+SOURCES=main.c copy.c thread.c
+#DOCS=PROG.texi PROG.info 
+MISC=configure mkinstalldirs install-sh aclocal.m4 
+OBJS=main.o copy.o thread.o
+
+all: rand_write
+
+install: all 
+	$(top_srcdir)/mkinstalldirs $(bindir) 
+	$(top_srcdir)/mkinstalldirs $(libdir) 
+	$(top_srcdir)/mkinstalldirs $(infodir) 
+	$(INSTALL) rand_write $(bindir)/rand_write
+
+uninstall: 
+	/bin/rm -f $(bindir)/rand_write
+
+rand_write: $(OBJS) 
+	$(CC) $(CFLAGS) -o rand_write $(OBJS) $(LIBS) 
+
+clean: 
+	/bin/rm -f core *.o $(OBJS)
+
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log \
+	marklib.dvi 
+
+mostlyclean: clean
+
+maintainer-clean: clean 
+
+# automatic re-running of configure if the ocnfigure.in file has changed 
+${srcdir}/configure: configure.in aclocal.m4 
+	cd ${srcdir} && autoconf 
+
+# autoheader might not change config.h.in, so touch a stamp file 
+${srcdir}/config.h.in: stamp-h.in 
+
+${srcdir}/stamp-h.in: configure.in aclocal.m4
+	cd ${srcdir} && autoheader 
+	echo timestamp > ${srcdir}/stamp-h.in 
+config.h: stamp-h 
+stamp-h: config.h.in config.status 
+	./config.status 
+
+Makefile: Makefile.in config.status 
+	./config.status 
+config.status: configure 
+	./config.status --recheck 
