@@ -90,10 +90,16 @@ int main(int argc, char *argv[]) {
 
 	/* Kill all threads */
 	for(int i = 0; i < n; i++) {
-		int to;
+		unsigned long long int *to;
 		pthread_join(threads[i], (void**)&to);
-		fprintf(stderr, "\tThread %i wrote %llu bytes (%i %%)\n",
-			i + 1, to, (total == 0 ? 0 : to*100/total));
+		if(to != NULL) {
+			fprintf(stderr, "\tThread %i wrote %llu bytes "
+					"(%llu %%)\n",
+			i + 1, *to, (total == 0 ? 0 : *to * 100/total));
+			free(to);
+		} else {
+			fprintf(stderr, "\t Thread %i failes.\n", i + 1);
+		}
 	}
 
 	fprintf(stderr, "Total bytes written: %llu\n", total);
