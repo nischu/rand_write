@@ -1,5 +1,5 @@
 /*
-    Copyright (C) by Nico Schümann prog@nico22.de 2011
+    Copyright (C) by Nico Schümann prog (AT) nico22.de 2011
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

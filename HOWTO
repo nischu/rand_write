@@ -1,7 +1,7 @@
 I'll add some configure script an Makefile later.
 
 Build it with:
-gcc --std=c99 main.c copy.c -pthread (works for LINUX ONLY atm / TODO!!!)
+gcc --std=c99 main.c copy.c thread.c -pthread (works for LINUX ONLY / TODO!!!)
 
 use it with:
 

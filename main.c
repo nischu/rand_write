@@ -1,5 +1,5 @@
 /*
-    Copyright (C) by Nico Schümann prog@nico22.de 2011
+    Copyright (C) by Nico Schümann prog (AT) nico22.de 2011
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,18 +23,16 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-
+#include "thread.h"
 #include "copy.h"
 
 int clos = 0;
 unsigned long long int total = 0;
 time_t start = 0;
 
-struct thread_data {
-	char *file;
-	int fd;
-};
-
+/*
+ * Output how much we have written each 30 seconds.
+ */
 void alrm(int sig) {
 	alarm(30);
 	if(sig != SIGALRM)
@@ -43,25 +41,6 @@ void alrm(int sig) {
 	double mbs = total/(1024.0 * 1024.0 * diff);
 	double written_mb = total / (1024.0 * 1024.0);
 	fprintf(stderr, "Written: %.2lf MB (%.2lf MB/s)\n", written_mb, mbs);
-}
-
-
-
-void *run(void *data) {
-	struct thread_data t = *(struct thread_data*) data;
-
-	int rd = open(t.file, O_RDONLY);
-	unsigned long long int total = 0;
-
-	while(!clos) {
-		int ret = copy(rd, t.fd, 4096);
-		if(ret >= 0)
-			total += ret;
-		else
-			break;
-	}
-	close(rd);
-	return (void*)total;
 }
 
 int main(int argc, char *argv[]) {
@@ -78,6 +57,7 @@ int main(int argc, char *argv[]) {
 	t.file = argv[1];
 	n = atoi(argv[2]);
 
+	/* Create n threads */
 	threads = malloc(n * sizeof(pthread_t));
 	rets = malloc(n * sizeof(int));
 
@@ -91,6 +71,7 @@ int main(int argc, char *argv[]) {
 	signal(SIGALRM, alrm);
 	start = time(NULL);
 	alarm(2);
+
 	for(;;) {
 		int res = copy(p[0], 1, 4096);
 		if(res >= 0)
@@ -103,9 +84,11 @@ int main(int argc, char *argv[]) {
 
 	perror("Write finished");
 
+	/* Read what's still in the pipe */
 	char buf[16 * 4096];
 	read(p[0], buf, 16 * 4096);
 
+	/* Kill all threads */
 	for(int i = 0; i < n; i++) {
 		int to;
 		pthread_join(threads[i], (void**)&to);
