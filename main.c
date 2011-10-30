@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include "copy.h"
+
 int clos = 0;
 unsigned long long int total = 0;
 time_t start = 0;
@@ -36,7 +38,7 @@ void *run(void *data) {
 	unsigned long long int total = 0;
 
 	while(!clos) {
-		int ret = splice(rd, NULL, t.fd, NULL, 16 * 4096, SPLICE_F_MORE);
+		int ret = copy(rd, t.fd, 4096);
 		if(ret >= 0)
 			total += ret;
 		else
@@ -74,7 +76,7 @@ int main(int argc, char *argv[]) {
 	start = time(NULL);
 	alarm(2);
 	for(;;) {
-		int res = splice(p[0], NULL, 1, NULL, 4096, 0);
+		int res = copy(p[0], 1, 4096);
 		if(res >= 0)
 			total += res;
 		else {
