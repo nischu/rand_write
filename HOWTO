@@ -8,3 +8,25 @@ use it with:
 ./a.out /dev/urandom 2 > /dev/disk
 
 to write random data to /dev/disk with two threads.
+
+
+
+BEWARE!!!!
+==========
+
+The use of this little tool is to overcome a pretty simple limitation in various
+UNIX kernels: If you open /dev/urandom, random number calculation is done in the
+calling process' context. This means, there will only be ONE thread calculating
+random numbers and if you have a multiple core machine, they will stay about
+idle.
+
+So we create n threads that open the given device, so in case of /dev/urandom,
+there will be n threads calculating random numbers. THE DATA IS WRITTEN TO THE
+PIPE IN ARBITRARY ORDER! This means, you should NOT EVER try to use this program
+for anything but RANDOM DEVICES! If you think it would be clever to read e. g.
+a disk image with this tool to be faster, you will most probably suffer from
+data corruption, since the input file will be output with mixed-up 4k chunks.
+
+There is no use in using anything BUT /dev/urandom for this utility since
+reading /dev/zero will not be any faster since there is no data to be
+calculated by the kernel. Any other "useful" input would be mixed up.
