@@ -1,0 +1,10 @@
+I'll add some configure script an Makefile later.
+
+Build it with:
+gcc --std=c99 main.c copy.c -pthread (works for LINUX ONLY atm / TODO!!!)
+
+use it with:
+
+./a.out /dev/urandom 2 > /dev/disk
+
+to write random data to /dev/disk with two threads.
