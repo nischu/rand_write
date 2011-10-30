@@ -45,7 +45,6 @@ void alrm(int sig) {
 
 int main(int argc, char *argv[]) {
 	pthread_t *threads;
-	int *rets;
 	int n;
 
 	if(argc != 3) {
@@ -59,14 +58,18 @@ int main(int argc, char *argv[]) {
 
 	/* Create n threads */
 	threads = malloc(n * sizeof(pthread_t));
-	rets = malloc(n * sizeof(int));
 
 	int p[2];
 	pipe(p);
 	t.fd = p[1];
 	int i;
 	for(i = 0; i < n; i++) {
-		rets[i] = pthread_create(&threads[i], NULL, run, (void*)&t);
+		int ret = pthread_create(&threads[i], NULL, run, (void*)&t);
+		if(ret != 0) {
+			fprintf(stderr, "Something went wrong when creating "
+				"threads. Exiting.");
+			return -1;
+		}
 	}
 
 	signal(SIGALRM, alrm);
@@ -106,7 +109,6 @@ int main(int argc, char *argv[]) {
 	fprintf(stderr, "Total bytes written: %llu\n", total);
 	close(p[0]);
 	close(p[1]);
-	free(rets);
 	free(threads);
 	return 0;
 }
