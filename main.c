@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <string.h>
 #include "thread.h"
 #include "copy.h"
 
@@ -87,7 +88,10 @@ int main(int argc, char *argv[]) {
 	threads = malloc(n * sizeof(pthread_t));
 
 	int p[2];
-	pipe(p);
+	if(pipe(p) < 0) {
+		perror("Could not create pipe");
+		return -1;
+	}
 	t.fd = p[1];
 	int i;
 	for(i = 0; i < n; i++) {
@@ -120,7 +124,8 @@ int main(int argc, char *argv[]) {
 
 	/* Read what's still in the pipe */
 	char buf[16 * 4096];
-	read(p[0], buf, 16 * 4096);
+	int ret = read(p[0], buf, 16 * 4096);
+	if(ret < 0);
 
 	/* Kill all threads */
 	for(i = 0; i < n; i++) {

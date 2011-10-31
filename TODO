@@ -1,3 +1,2 @@
 - Cancel threads properly if destination is full
-- Fix minor gcc warnings
 - Fix Makefile
