@@ -6,9 +6,16 @@ make
 
 use it with:
 
-./rand_write /dev/urandom 2 > /dev/disk
+./rand_write > /dev/disk
+to write random data to /dev/disk with four threads.
 
-to write random data to /dev/disk with two threads.
+If you want to specify the number of threads to be started, use the -n
+parameter:
+./rand_write -n 16 > /dev/disk
+
+If your random device has a different name, use the -f parameter:
+./rand_write -f /dev/myrandomdevice > /dev/disk
+
 
 
 
