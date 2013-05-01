@@ -1,5 +1,3 @@
-I'll add some configure script an Makefile later.
-
 Build it with:
 ./configure
 make
